@@ -69,7 +69,7 @@ class ShopItemFragment : Fragment() {
             tilName.error = message
         }
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
-            activity?.finish()
+            activity?.onBackPressed()
         }
     }
 
