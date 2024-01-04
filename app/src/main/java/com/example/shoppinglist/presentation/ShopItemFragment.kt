@@ -1,6 +1,8 @@
 package com.example.shoppinglist.presentation
 
+import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +15,7 @@ import com.example.shoppinglist.R
 import com.example.shoppinglist.databinding.FragmentShopItemBinding
 import com.example.shoppinglist.domain.ShopItem
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class ShopItemFragment : Fragment() {
 
@@ -109,19 +112,46 @@ class ShopItemFragment : Fragment() {
     private fun launchEditMode() {
         viewModel.getShopItem(shopItemId)
         binding.saveButton.setOnClickListener {
-            viewModel.editShopItem(
-                binding.etName.text?.toString(),
-                binding.etAmount.text?.toString()
-            )
+//            viewModel.editShopItem(
+//                binding.etName.text?.toString(),
+//                binding.etAmount.text?.toString()
+//            )
+            thread{
+                context?.contentResolver?.update(
+                    Uri.parse("content://com.example.shoppinglist/shop_items"),
+                    ContentValues().apply {
+                        put("id", viewModel.shopItem.value?.id)
+                        put("name", viewModel.shopItem.value?.name)
+                        put("amount", viewModel.shopItem.value?.amount)
+                        put("enabled", viewModel.shopItem.value?.enabled)
+                    },
+                    null,
+                    arrayOf(
+                        binding.etName.text?.toString(),
+                        binding.etAmount.text?.toString()
+                    )
+                )
+            }
         }
     }
 
     private fun launchAddMode() {
         binding.saveButton.setOnClickListener {
-            viewModel.addShopItem(
-                binding.etName.text?.toString(),
-                binding.etAmount.text?.toString()
-            )
+//            viewModel.addShopItem(
+//                binding.etName.text?.toString(),
+//                binding.etAmount.text?.toString()
+//            )
+            thread{
+                context?.contentResolver?.insert(
+                    Uri.parse("content://com.example.shoppinglist/shop_items"),
+                    ContentValues().apply {
+                        put("id", 0)
+                        put("name", binding.etName.text?.toString())
+                        put("amount", binding.etAmount.text?.toString())
+                        put("enabled", true)
+                    }
+                )
+            }
         }
     }
 
